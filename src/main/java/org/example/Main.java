@@ -7,6 +7,7 @@ import java.io.IOException;
 
 public class Main {
 
+    public static FileReaderInterface fileReader = new FileReaderImpl();
     public static ArrayList<Character> alphabetGetter(ArrayList<String> fsm) {
         ArrayList<Character> result = new ArrayList<>();
         Character c;
@@ -79,16 +80,15 @@ public class Main {
         else return false;
     }
 
+    public static ArrayList<String> readFSMDeclaration(FileReaderInterface fileReader, String filePath) throws IOException {
+        return fileReader.readFile(filePath);
+    }
+
+
     public static void main(String[] args/*, int k*/) throws IOException {
-        //read file
-        BufferedReader reader = new BufferedReader(new FileReader("E://IdeaProjects//fsm_lab1//src//main//resources//fsm.txt"));
-        String line = reader.readLine();
-        ArrayList<String> fsm = new ArrayList<>();
-        while (line != null) {
-            fsm.add(line);
-            line = reader.readLine();
-        }
-        reader.close();
+        FileReaderInterface fileReader = new FileReaderImpl();
+        String filePath = "E://IdeaProjects//fsm_test3//src//main//resources//fsm.txt";
+        ArrayList<String> fsm = readFSMDeclaration(fileReader, filePath);
 
         ArrayList<Character> alphabet = alphabetGetter(fsm);
         char[] alph = new char[alphabet.size()];

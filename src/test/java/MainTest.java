@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static net.bytebuddy.matcher.ElementMatchers.anyOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,7 +37,6 @@ public class MainTest {
 
     @Test
     public void testFileReaderSuccess() throws IOException {
-        // Define input parameters
         String filePath = "E://IdeaProjects//fsm_test3//src//main//resources//fsm.txt";
 
         // Define expected output
@@ -45,7 +47,10 @@ public class MainTest {
         when(fileReader.readFile(filePath)).thenReturn(expectedOutput);
 
         // Call the method being tested
-        ArrayList<String> actualOutput = fileReader.readFile(filePath);
+        ArrayList<String> actualOutput = main.readFSMDeclaration(fileReader, filePath);
+
+        // Verify the interaction
+        verify(fileReader).readFile(filePath);
 
         // Assert the result
         assertEquals(expectedOutput, actualOutput);
@@ -54,15 +59,16 @@ public class MainTest {
     @Test
     public void testFileReaderFailure() throws IOException {
         String filePath = "invalid/file/path"; // path to non-existent file
+
         // Mock the fileReader object to throw an IOException
         when(fileReader.readFile(filePath)).thenThrow(new IOException());
 
-        // Call the method being tested
+        // Call the method being tested and expect an IOException to be thrown
         try {
-            ArrayList<String> actualOutput = fileReader.readFile(filePath);
+            ArrayList<String> actualOutput = main.readFSMDeclaration(fileReader, filePath);
             fail("Expected an IOException to be thrown");
         } catch (IOException e) {
-            // expected behavior, do nothing
+            // Expected behavior, do nothing
         }
     }
 
@@ -71,20 +77,23 @@ public class MainTest {
 
     @Test
     public void testFileReaderEmpty() throws IOException {
-        // Here, real method of fileReader is called
-        ArrayList<String> actualOutput = fileReader1.readFile("E://IdeaProjects//fsm_test3//src//main//resources//fsm.txt");
+        // Spy on FileReaderImpl and return an empty list for any file path
+        doReturn(new ArrayList<>()).when(fileReader1).readFile(anyString());
 
-        // Here, you define behaviour of method, making it a mock method
-        doReturn(new ArrayList<>(Arrays.asList())).when(fileReader1).readFile(anyString());
+        String filePath = "E://IdeaProjects//fsm_test3//src//main//resources//fsm.txt";
 
-        // Now, fileReader.readFile("path/to/file") will return [ ]
-        actualOutput = fileReader1.readFile("E://IdeaProjects//fsm_test3//src//main//resources//fsm.txt");
+        // Call the method being tested
+        ArrayList<String> actualOutput = main.readFSMDeclaration(fileReader1, filePath);
+
+        // Verify the interaction
+        verify(fileReader1).readFile(filePath);
+
+        // Assert the result
         assertEquals(new ArrayList<>(), actualOutput);
     }
 
     @Test
     public void testFileReaderCalledOnce() throws IOException {
-        // Define input parameters
         String filePath = "E://IdeaProjects//fsm_test3//src//main//resources//fsm.txt";
 
         // Define expected output
@@ -95,7 +104,7 @@ public class MainTest {
         when(fileReader.readFile(filePath)).thenReturn(expectedOutput);
 
         // Call the method being tested
-        ArrayList<String> actualOutput = fileReader.readFile(filePath);
+        ArrayList<String> actualOutput = main.readFSMDeclaration(fileReader, filePath);
 
         // Verify that the method was called only once
         verify(fileReader, times(1)).readFile(filePath);
